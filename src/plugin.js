@@ -46,6 +46,7 @@ class Xr extends Plugin {
         this.handleVrDisplayDeactivate_ = videojs.bind(this, this.handleVrDisplayDeactivate_);
         this.handleResize_ = videojs.bind(this, this.handleResize_);
         this.animate_ = videojs.bind(this, this.animate_);
+        this.currentSession = null;
 
         this.on(player, 'loadedmetadata', this.init);
 
@@ -60,12 +61,11 @@ class Xr extends Plugin {
             return;
 
         var self = this;
-        var sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
+        var sessionInit = { optionalFeatures: ['local-floor'] };
         navigator.xr.requestSession('immersive-vr', sessionInit).then(function (session) {
-            console.log('set session');
-            console.log(session);
             self.renderer.xr.setSession(session);
             self.xrActive = true;
+			self.currentSession = session;
         });
 
 
@@ -119,29 +119,27 @@ class Xr extends Plugin {
     }
 
     handleVrDisplayDeactivate_() {
-        if (!this.vrDisplay || !this.vrDisplay.isPresenting) {
+        if (!this.xrSupported)
             return;
-        }
-        if (this.iosRevertTouchToClick_) {
-            this.iosRevertTouchToClick_();
-        }
-        this.vrDisplay.exitPresent();
+
+        this.currentSession.end();
+        this.currentSession = null;
+
+        // if (!this.vrDisplay || !this.vrDisplay.isPresenting) {
+        //     return;
+        // }
+        // if (this.iosRevertTouchToClick_) {
+        //     this.iosRevertTouchToClick_();
+        // }
+        // this.vrDisplay.exitPresent();
 
     }
 
     requestAnimationFrame(fn) {
-        if (this.vrDisplay) {
-            return this.vrDisplay.requestAnimationFrame(fn);
-        }
-
         return this.player.requestAnimationFrame(fn);
     }
 
     cancelAnimationFrame(id) {
-        if (this.vrDisplay) {
-            return this.vrDisplay.cancelAnimationFrame(id);
-        }
-
         return this.player.cancelAnimationFrame(id);
     }
 
@@ -176,14 +174,12 @@ class Xr extends Plugin {
         const width = this.player.currentWidth();
         const height = this.player.currentHeight();
 
-        // this.effect.setSize(width, height, false);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
     }
 
     init() {
-        console.log(this);
-        // this.reset();
+        this.reset();
 
         this.xrSupported = false;
         this.camera = new THREE.PerspectiveCamera(75, this.player.currentWidth() / this.player.currentHeight(), 1, 1000);
@@ -217,8 +213,6 @@ class Xr extends Plugin {
         this.movieScreen.scale.x = -1;
         this.movieScreen.quaternion.setFromAxisAngle({ x: 0, y: 1, z: 0 }, -Math.PI / 2);
         this.scene.add(this.movieScreen);
-
-        // this.currentProjection_ = '360';
 
         this.player.removeChild('BigPlayButton');
         this.player.addChild('BigVrPlayButton', {}, this.bigPlayButtonIndex_);
@@ -280,7 +274,6 @@ class Xr extends Plugin {
         }
 
         if (window.navigator.xr) {
-            console.log('webxr supported');
             this.renderer.xr.enabled = true;
             this.renderer.xr.setReferenceSpaceType('local');
             var self = this;
@@ -288,13 +281,13 @@ class Xr extends Plugin {
                 if (supported) {
                     self.xrSupported = true;
                     self.addCardboardButton_();
-                    console.log('xr session supported');
+                    console.log('webxr session supported');
                 } else {
                     console.log('web xr device not found, using orbit controls');
                 }
             });
         } else {
-            console.log('web xr not available (only works in https)');
+            console.log('web xr not available');
         }
 
         self.completeInitialization(); // wait until controls are initialized
@@ -329,12 +322,6 @@ class Xr extends Plugin {
             return;
         }
 
-        if (this.omniController) {
-            this.omniController.off('audiocontext-suspended');
-            this.omniController.dispose();
-            this.omniController = undefined;
-        }
-
         if (this.controls3d) {
             this.controls3d.dispose();
             this.controls3d = null;
@@ -343,11 +330,6 @@ class Xr extends Plugin {
         if (this.canvasPlayerControls) {
             this.canvasPlayerControls.dispose();
             this.canvasPlayerControls = null;
-        }
-
-        if (this.effect) {
-            this.effect.dispose();
-            this.effect = null;
         }
 
         window.removeEventListener('resize', this.handleResize_, true);
@@ -374,9 +356,6 @@ class Xr extends Plugin {
 
         videoElStyle.zIndex = '';
         videoElStyle.opacity = '';
-
-        // set the current projection to the default
-        this.currentProjection_ = this.defaultProjection_;
 
         // reset the ios touch to click workaround
         if (this.iosRevertTouchToClick_) {
