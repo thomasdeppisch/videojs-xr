@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import OrbitOrientationControls from './orbit-orientation-controls.js';
 import CanvasPlayerControls from './canvas-player-controls';
 import './big-vr-play-button';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 
 const Plugin = videojs.getPlugin('plugin');
 
@@ -150,7 +151,10 @@ class Xr extends Plugin {
 
         this.camera.getWorldDirection(this.cameraVector);
         this.animationFrameId_ = this.requestAnimationFrame(this.animate_);
-        this.controls3d.update();
+
+        if (!this.xrActive)
+            this.controls3d.update();
+        
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -243,18 +247,25 @@ class Xr extends Plugin {
         videoElStyle.zIndex = '-1';
         videoElStyle.opacity = '0';
 
+        //document.body.appendChild( VRButton.createButton( this.renderer, { referenceSpaceType: 'local' } ) );
+        this.xrActive = false;
+
         if (window.navigator.xr) {
             console.log('webxr supported');
             this.renderer.xr.enabled = true;
+            this.renderer.xr.setReferenceSpaceType('local');
             var self = this;
             navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
                 if (supported) {
+                    console.log('xr session supported');
                     var sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
                     navigator.xr.requestSession('immersive-vr', sessionInit).then(function (session) {
+                        console.log('set session');
+                        console.log(session);
                         self.renderer.xr.setSession(session);
+                        self.xrActive = true;
                     });
-                }
-                else {
+                } else {
                     console.log('web xr device not found, using orbit controls');
                     if (!self.controls3d) {
                         // self.controls3d = new OrbitControls(self.camera, self.renderedCanvas);
@@ -268,11 +279,11 @@ class Xr extends Plugin {
 
                         self.controls3d = new OrbitOrientationControls(options);
                         self.canvasPlayerControls = new CanvasPlayerControls(self.player, self.renderedCanvas);
-                        self.completeInitialization(); // wait until controls are initialized
                     }
 
                 }
             });
+            self.completeInitialization(); // wait until controls are initialized
 
             this.animationFrameId_ = this.requestAnimationFrame(this.animate_);
         } else {
