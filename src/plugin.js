@@ -65,7 +65,11 @@ class Xr extends Plugin {
         navigator.xr.requestSession('immersive-vr', sessionInit).then(function (session) {
             self.renderer.xr.setSession(session);
             self.xrActive = true;
-			self.currentSession = session;
+            self.currentSession = session;
+            session.requestReferenceSpace('local')
+            .then((referenceSpace) => {
+                self.xrReferenceSpace = referenceSpace;
+            })
         });
 
 
@@ -124,6 +128,7 @@ class Xr extends Plugin {
 
         this.currentSession.end();
         this.currentSession = null;
+        this.xrActive = false;
 
         // if (!this.vrDisplay || !this.vrDisplay.isPresenting) {
         //     return;
@@ -136,7 +141,10 @@ class Xr extends Plugin {
     }
 
     requestAnimationFrame(fn) {
-        return this.player.requestAnimationFrame(fn);
+        if (this.xrActive)
+            return this.currentSession.requestAnimationFrame(fn);
+        else
+            return this.player.requestAnimationFrame(fn);
     }
 
     cancelAnimationFrame(id) {
@@ -151,7 +159,7 @@ class Xr extends Plugin {
         }
     }
 
-    animate_() {
+    animate_(xrTimestamp, xrFrame) {
         if (!this.initialized_) {
             return;
         }
@@ -167,8 +175,10 @@ class Xr extends Plugin {
         if (!this.xrActive)
             this.controls3d.update();
 
-        if (this.xrActive)
+        if (this.xrActive) {
             this.trigger('xrCameraUpdate');
+            this.xrPose = xrFrame.getViewerPose(this.xrReferenceSpace);
+        }
         
         this.renderer.render(this.scene, this.camera);
     }
@@ -278,7 +288,7 @@ class Xr extends Plugin {
 
         if (window.navigator.xr) {
             this.renderer.xr.enabled = true;
-            this.renderer.xr.setReferenceSpaceType('local');
+            // this.renderer.xr.setReferenceSpaceType('local');
             var self = this;
             navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
                 if (supported) {
