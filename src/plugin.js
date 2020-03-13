@@ -166,6 +166,9 @@ class Xr extends Plugin {
 
         if (!this.xrActive)
             this.controls3d.update();
+
+        if (this.xrActive)
+            this.trigger('xrCameraUpdate');
         
         this.renderer.render(this.scene, this.camera);
     }
