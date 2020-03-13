@@ -98,8 +98,10 @@ class CardboardButton extends Button {
     //     this.player_.play();
     //   }
       window.dispatchEvent(new window.Event('vrdisplayactivate'));
+      this.active_ = true;
     } else {
       window.dispatchEvent(new window.Event('vrdisplaydeactivate'));
+      this.active_ = false;
     }
   }
 
