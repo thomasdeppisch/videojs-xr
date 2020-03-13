@@ -40,7 +40,8 @@ class Xr extends Plugin {
         this.options = videojs.mergeOptions(defaults, options);
         this.bigPlayButtonIndex_ = player.children().indexOf(player.getChild('BigPlayButton')) || 0;
 
-        this.polyfill_ = new WebXRPolyfill();
+        if (!navigator.xr)
+            this.polyfill_ = new WebXRPolyfill();
 
         this.handleVrDisplayActivate_ = videojs.bind(this, this.handleVrDisplayActivate_);
         this.handleVrDisplayDeactivate_ = videojs.bind(this, this.handleVrDisplayDeactivate_);
@@ -126,6 +127,10 @@ class Xr extends Plugin {
         if (!this.xrSupported)
             return;
 
+        if (this.animationFrameId_) {
+            this.currentSession.cancelAnimationFrame(this.animationFrameId_);
+            this.animationFrameId_ = 0;
+        }
         this.currentSession.end();
         this.currentSession = null;
         this.xrActive = false;
@@ -176,8 +181,8 @@ class Xr extends Plugin {
             this.controls3d.update();
 
         if (this.xrActive) {
-            this.trigger('xrCameraUpdate');
             this.xrPose = xrFrame.getViewerPose(this.xrReferenceSpace);
+            this.trigger('xrCameraUpdate');
         }
         
         this.renderer.render(this.scene, this.camera);
