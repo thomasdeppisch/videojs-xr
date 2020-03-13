@@ -180,7 +180,7 @@ class Xr extends Plugin {
         if (!this.xrActive)
             this.controls3d.update();
 
-        if (this.xrActive && this.xrPose) {
+        if (this.xrActive && xrFrame) {
             this.xrPose = xrFrame.getViewerPose(this.xrReferenceSpace);
             this.trigger('xrCameraUpdate');
         }
