@@ -309,8 +309,8 @@ class Xr extends Plugin {
     }
 
     dispose() {
-        super.dispose();
         this.reset();
+        super.dispose();
     }
 
     polyfillVersion() {
