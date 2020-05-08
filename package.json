@@ -79,8 +79,8 @@
   "dependencies": {
     "global": "^4.4.0",
     "three": "^0.114.0",
-    "video.js": "^7.6.6",
-    "webxr-polyfill": "^2.0.1"
+    "video.js": "^7.7.6",
+    "webxr-polyfill": "^2.0.2"
   },
   "devDependencies": {
     "@videojs/generator-helpers": "~1.0.0",
@@ -90,9 +90,9 @@
     "postcss-cli": "^6.0.0",
     "rollup": "^1.32.1",
     "sinon": "^7.5.0",
-    "videojs-generate-karma-config": "^5.2.1",
+    "videojs-generate-karma-config": "^5.3.1",
     "videojs-generate-postcss-config": "~2.1.0",
-    "videojs-generate-rollup-config": "^3.1.1",
+    "videojs-generate-rollup-config": "^3.2.1",
     "videojs-generator-verify": "~1.2.0",
     "videojs-standard": "^8.0.4"
   }
