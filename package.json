@@ -62,20 +62,7 @@
     "test/"
   ],
   "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run test"
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "vjsstandard --fix",
-      "git add"
-    ],
-    "README.md": [
-      "doctoc --notitle",
-      "git add"
-    ]
+    "hooks": {}
   },
   "dependencies": {
     "global": "^4.4.0",
