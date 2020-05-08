@@ -1,9 +1,10 @@
 {
   "name": "videojs-xr",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Plugin for using WebXR with videojs, based on videojs-vr",
   "main": "dist/videojs-xr.cjs.js",
   "module": "dist/videojs-xr.es.js",
+  "repository": "https://github.com/thomasdeppisch/videojs-xr",
   "generator-videojs-plugin": {
     "version": "7.6.3"
   },
