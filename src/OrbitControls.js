@@ -208,8 +208,6 @@ var OrbitControls = function ( object, domElement ) {
 				}
             }
             
-            // spherical.radius *= scale;
-
 			// restrict radius to be between desired limits
 			spherical.radius = Math.max( scope.minDistance, Math.min( scope.maxDistance, spherical.radius ) );
 
@@ -248,8 +246,6 @@ var OrbitControls = function ( object, domElement ) {
 				panOffset.set( 0, 0, 0 );
 
 			}
-
-			scale = 1;
 
 			// update condition is:
 			// min(camera displacement, camera rotation in radians)^2 > EPS
@@ -327,7 +323,6 @@ var OrbitControls = function ( object, domElement ) {
 	var spherical = new Spherical();
 	var sphericalDelta = new Spherical();
 
-	var scale = 1;
 	var panOffset = new Vector3();
 	var zoomChanged = false;
 
@@ -451,8 +446,6 @@ var OrbitControls = function ( object, domElement ) {
 	function dollyIn( dollyScale ) {
 		if ( scope.object.isPerspectiveCamera ) {
 
-			scale = -0.1;
-
 		} else if ( scope.object.isOrthographicCamera ) {
 
 			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * dollyScale ) );
@@ -470,8 +463,6 @@ var OrbitControls = function ( object, domElement ) {
 
 	function dollyOut( dollyScale ) {
 		if ( scope.object.isPerspectiveCamera ) {
-
-			scale = 0.1;
 
 		} else if ( scope.object.isOrthographicCamera ) {
 
