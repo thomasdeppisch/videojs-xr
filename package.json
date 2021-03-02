@@ -1,6 +1,6 @@
 {
   "name": "videojs-xr",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Plugin for using WebXR with videojs, based on videojs-vr",
   "main": "dist/videojs-xr.cjs.js",
   "module": "dist/videojs-xr.es.js",
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "global": "^4.4.0",
-    "three": "^0.114.0",
+    "three": "^0.125.0",
     "video.js": "^7.7.6",
     "webxr-polyfill": "^2.0.2"
   },
