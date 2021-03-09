@@ -1,7 +1,9 @@
 # videojs-xr
 
-This is a plugin for using WebXR with [videojs](https://github.com/videojs), based on [videojs-vr](https://github.com/videojs/videojs-vr). For a jump start how to use it with videojs see the [index.html](https://github.com/thomasdeppisch/videojs-xr/blob/master/index.html).
+This is a plugin for using WebXR with [videojs](https://github.com/videojs), based on [videojs-vr](https://github.com/videojs/videojs-vr). Videojs-xr supports the Oculus browser and Firefox Reality on Oculus Quest. For a jump start how to use it with videojs see the [index.html](https://github.com/thomasdeppisch/videojs-xr/blob/master/index.html).
 You can see it in action [here](https://thomasdeppisch.github.io/videojs-xr/index.html). This plugin is used in [HOAST360](https://github.com/thomasdeppisch/hoast360) and in the [HOAST library](https://hoast.iem.at/).
+
+Currently the only supported video format is 360° equirectangular.
 
 ## Installation
 
