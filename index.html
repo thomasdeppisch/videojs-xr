@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <title>videojs-xr Demo</title>
-  <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
-  <link href="dist/videojs-xr.css" rel="stylesheet">
+  <!-- <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet"> -->
+  <link href="https://vjs.zencdn.net/7.10.2/video-js.css" rel="stylesheet" />
+  <link href="./dist/videojs-xr.css" rel="stylesheet">
 </head>
 <body>
   <video id="videojs-xr-player" class="video-js vjs-default-skin" controls>
@@ -16,8 +17,8 @@
     <li><a href="/test/debug.html">Run unit tests in browser.</a></li>
     
   </ul>
-  <script src="node_modules/video.js/dist/video.js"></script>
-  <script src="dist/videojs-xr.js"></script>
+  <script src="https://vjs.zencdn.net/7.10.2/video.min.js"></script>
+  <script src="./dist/videojs-xr.js"></script>
   <script>
     (function(window, videojs) {
       var examplePlayer = window.examplePlayer = videojs('videojs-xr-player');
