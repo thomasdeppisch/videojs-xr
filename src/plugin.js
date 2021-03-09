@@ -40,6 +40,7 @@ class Xr extends Plugin {
 
         this.handleVrDisplayActivate_ = videojs.bind(this, this.handleVrDisplayActivate_);
         this.handleVrDisplayDeactivate_ = videojs.bind(this, this.handleVrDisplayDeactivate_);
+        this.onXRSessionEnd_ = videojs.bind(this, this.onXRSessionEnd_);
         this.handleResize_ = videojs.bind(this, this.handleResize_);
         this.animate_ = videojs.bind(this, this.animate_);
         this.currentSession = null;
@@ -59,6 +60,7 @@ class Xr extends Plugin {
         var sessionInit = { optionalFeatures: ['local-floor'] };
         navigator.xr.requestSession('immersive-vr', sessionInit).then(function (session) {
             self.renderer.xr.setSession(session);
+            session.addEventListener('end', self.onXRSessionEnd_);
             self.xrActive = true;
             self.currentSession = session;
             session.requestReferenceSpace('local')
@@ -67,22 +69,24 @@ class Xr extends Plugin {
             })
             self.controls3d.disable();
             self.trigger('xrSessionActivated');
+            self.animationFrameId_ = self.requestAnimationFrame(self.animate_);
         });
     }
 
     handleVrDisplayDeactivate_() {
-        if (!this.xrSupported)
-            return;
+        this.currentSession.end();
+    }
 
+    onXRSessionEnd_() {
         if (this.animationFrameId_) {
             this.currentSession.cancelAnimationFrame(this.animationFrameId_);
             this.animationFrameId_ = 0;
         }
-        this.currentSession.end();
         this.currentSession = null;
         this.xrActive = false;
         this.controls3d.enable();
         this.trigger('xrSessionDeactivated');
+        this.animationFrameId_ = this.requestAnimationFrame(this.animate_);
     }
 
     requestAnimationFrame(fn) {
@@ -114,9 +118,6 @@ class Xr extends Plugin {
             }
         }
 
-        this.camera.getWorldDirection(this.cameraVector);
-        this.animationFrameId_ = this.requestAnimationFrame(this.animate_);
-
         if (!this.xrActive)
             this.controls3d.update();
 
@@ -124,6 +125,9 @@ class Xr extends Plugin {
             this.xrPose = xrFrame.getViewerPose(this.xrReferenceSpace);
             this.trigger('xrCameraUpdate');
         }
+
+        this.camera.getWorldDirection(this.cameraVector);
+        this.animationFrameId_ = this.requestAnimationFrame(this.animate_);
         
         this.renderer.render(this.scene, this.camera);
     }
@@ -177,8 +181,6 @@ class Xr extends Plugin {
         this.player.bigPlayButton = this.player.getChild('BigVrPlayButton');
 
         this.camera.position.set(0, 0, 0);
-        // this.renderer = new THREE.WebGLRenderer();
-        // this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer = new THREE.WebGLRenderer({
             devicePixelRatio: window.devicePixelRatio,
             alpha: false,
@@ -217,8 +219,8 @@ class Xr extends Plugin {
             // this.renderer.xr.setReferenceSpaceType('local');
             var self = this;
             navigator.xr.isSessionSupported('immersive-vr').then(function (supported) {
+                self.xrSupported = supported;
                 if (supported) {
-                    self.xrSupported = true;
                     self.addCardboardButton_();
                     console.log('webxr session supported');
                 } else {
@@ -230,12 +232,12 @@ class Xr extends Plugin {
         }
 
         self.completeInitialization(); // wait until controls are initialized
-
         this.animationFrameId_ = this.requestAnimationFrame(this.animate_);
 
         this.on(this.player, 'fullscreenchange', this.handleResize_);
         window.addEventListener('vrdisplaypresentchange', this.handleResize_, true);
         window.addEventListener('resize', this.handleResize_, true);
+        // these are triggered by the carboard button:
         window.addEventListener('vrdisplayactivate', this.handleVrDisplayActivate_, true);
         window.addEventListener('vrdisplaydeactivate', this.handleVrDisplayDeactivate_, true);
 
