@@ -1,4 +1,4 @@
-/*! @name videojs-xr @version 0.0.4 @license MIT */
+/*! @name videojs-xr @version 0.0.5 @license MIT */
 import videojs from 'video.js';
 import window$1 from 'global/window';
 
@@ -26,7 +26,7 @@ function _assertThisInitialized(self) {
   return self;
 }
 
-var version = "0.0.4";
+var version = "0.0.5";
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 

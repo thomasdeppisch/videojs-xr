@@ -1,4 +1,4 @@
-/*! @name videojs-xr @version 0.0.4 @license MIT */
+/*! @name videojs-xr @version 0.0.5 @license MIT */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('video.js'), require('global/window')) :
   typeof define === 'function' && define.amd ? define(['video.js', 'global/window'], factory) :
@@ -32,7 +32,7 @@
     return self;
   }
 
-  var version = "0.0.4";
+  var version = "0.0.5";
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 

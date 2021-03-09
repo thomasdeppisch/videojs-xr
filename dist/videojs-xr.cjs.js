@@ -1,4 +1,4 @@
-/*! @name videojs-xr @version 0.0.4 @license MIT */
+/*! @name videojs-xr @version 0.0.5 @license MIT */
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -30,7 +30,7 @@ function _assertThisInitialized(self) {
   return self;
 }
 
-var version = "0.0.4";
+var version = "0.0.5";
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
