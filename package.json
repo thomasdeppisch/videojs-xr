@@ -73,7 +73,7 @@
     "@videojs/generator-helpers": "~1.0.0",
     "babel-polyfill": "^6.26.0",
     "eslint": "^6.8.0",
-    "karma": "^4.4.1",
+    "karma": "^6.3.16",
     "postcss-cli": "^6.0.0",
     "rollup": "^1.32.1",
     "sinon": "^7.5.0",
