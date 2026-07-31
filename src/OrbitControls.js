@@ -362,6 +362,14 @@ var OrbitControls = function ( object, domElement ) {
 
 	}
 
+	// OrbitOrientationControls drives the device-orientation (gyro) path by
+	// calling rotateLeft/rotateUp as instance methods, but both are private to
+	// this closure. Without them the first orientation update throws
+	// "this.orbit.rotateLeft is not a function", which kills the render loop
+	// and leaves the sphere black on any device with an orientation sensor.
+	scope.rotateLeft = rotateLeft;
+	scope.rotateUp = rotateUp;
+
 	var panLeft = function () {
 
 		var v = new Vector3();

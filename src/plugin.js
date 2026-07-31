@@ -207,7 +207,8 @@ class Xr extends Plugin {
                 canvas: this.renderedCanvas,
                 // check if its a half sphere view projection
                 halfView: false,
-                orientation: false
+                orientation: this.options.orientation !== undefined ?
+                    !!this.options.orientation : videojs.browser.IS_ANDROID || videojs.browser.IS_IOS
             };
 
             this.controls3d = new OrbitOrientationControls(options);
