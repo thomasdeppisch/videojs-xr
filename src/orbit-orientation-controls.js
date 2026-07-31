@@ -54,6 +54,11 @@ class OrbitOrientationControls {
         // if orientation is supported
         if (options.orientation) {
             this.orientation = new DeviceOrientationControls(this.object);
+
+            // without a permission API the sensor can be attached right away;
+            // iOS 13+ has to wait for enableOrientation() inside a user gesture
+            if (!this.orientationNeedsPermission())
+                this.orientation.connect();
         }
 
         // if projection is not full view
@@ -64,6 +69,17 @@ class OrbitOrientationControls {
         }
     }
 
+    orientationNeedsPermission() {
+        return window.DeviceOrientationEvent !== undefined &&
+            typeof window.DeviceOrientationEvent.requestPermission === 'function';
+    }
+
+    // call from a user gesture handler (click/touchend)
+    enableOrientation() {
+        if (this.orientation)
+            this.orientation.connect();
+    }
+
     update() {
         // orientation updates the camera using quaternions and
         // orbit updates the camera using angles. They are incompatible
@@ -72,7 +88,7 @@ class OrbitOrientationControls {
         // an angle change. Then save the angle into orbit so that
         // it will take those into account when it updates the camera and overrides
         // our changes
-        if (this.orientation) {
+        if (this.orientation && this.orientation.enabled) {
             this.orientation.update();
 
             const quat = this.orientation.object.quaternion;
@@ -103,7 +119,7 @@ class OrbitOrientationControls {
         this.orbit.enabled = true;
 
         if (this.orientation)
-            this.orientation.enabled = true;
+            this.orientation.enabled = this.orientation.connected;
     }
 
     disable() {

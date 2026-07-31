@@ -108,6 +108,13 @@ class Xr extends Plugin {
         }
     }
 
+    // request the iOS 13+ DeviceOrientation permission and attach the sensor;
+    // must be called from a user gesture handler, no-op everywhere else
+    enableOrientation() {
+        if (this.controls3d)
+            this.controls3d.enableOrientation();
+    }
+
     animate_(xrTimestamp, xrFrame) {
         if (!this.initialized_) {
             return;
