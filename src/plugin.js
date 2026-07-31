@@ -204,8 +204,17 @@ class Xr extends Plugin {
             this.scene.remove(this.movieScreen);
         }
 
-        // 360 equirectangular projection
-        this.movieGeometry = new THREE.SphereBufferGeometry(256, 32, 32);
+        // 360 equirectangular projection.
+        //
+        // Segment count matters more than it looks: UV interpolation across a
+        // quad is linear, but the equirect-to-sphere mapping is not, so every
+        // quad bends whatever straight line crosses it. At 32x32 a quad spans
+        // 11.25 degrees of azimuth and the bowing is plainly visible on any
+        // straight-edged content, worst near the poles where the azimuth
+        // segments converge into slivers. 256x128 puts a quad at about 1.4
+        // degrees, around 65k triangles, negligible for a GPU that is already
+        // playing back video.
+        this.movieGeometry = new THREE.SphereBufferGeometry(256, 256, 128);
         this.movieMaterial = new THREE.MeshBasicMaterial({ map: this.videoTexture, side: THREE.BackSide });
 
         this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
