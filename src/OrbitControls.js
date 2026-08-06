@@ -9,6 +9,7 @@
 
 import {
 	EventDispatcher,
+	MathUtils,
 	MOUSE,
 	Quaternion,
 	Spherical,
@@ -145,7 +146,7 @@ var OrbitControls = function ( object, domElement ) {
 
 		// so camera.up is the orbit axis
 		var quat = new Quaternion().setFromUnitVectors( object.up, new Vector3( 0, 1, 0 ) );
-		var quatInverse = quat.clone().inverse();
+		var quatInverse = quat.clone().invert();
 
 		var lastPosition = new Vector3();
 		var lastQuaternion = new Quaternion();
@@ -362,6 +363,14 @@ var OrbitControls = function ( object, domElement ) {
 
 	}
 
+	// OrbitOrientationControls drives the device-orientation (gyro) path by
+	// calling rotateLeft/rotateUp as instance methods, but both are private to
+	// this closure. Without them the first orientation update throws
+	// "this.orbit.rotateLeft is not a function", which kills the render loop
+	// and leaves the sphere black on any device with an orientation sensor.
+	scope.rotateLeft = rotateLeft;
+	scope.rotateUp = rotateUp;
+
 	var panLeft = function () {
 
 		var v = new Vector3();
@@ -556,7 +565,7 @@ var OrbitControls = function ( object, domElement ) {
 	function handleMouseWheel( event ) {
         scope.currentDistance += Math.sign(event.deltaY) * 15;
         // make sure scope.currentDistance never gets 0!
-        scope.currentDistance = Math.clamp( scope.currentDistance != 0 ? scope.currentDistance : Math.sign(event.deltaY) + 0.1, scope.minDistance, scope.maxDistance );    
+        scope.currentDistance = MathUtils.clamp( scope.currentDistance != 0 ? scope.currentDistance : Math.sign(event.deltaY) + 0.1, scope.minDistance, scope.maxDistance );
         
 		if ( event.deltaY < 0 ) {
 

@@ -108,9 +108,31 @@ class Xr extends Plugin {
         }
     }
 
+    // request the iOS 13+ DeviceOrientation permission and attach the sensor;
+    // must be called from a user gesture handler, no-op everywhere else
+    enableOrientation() {
+        if (this.controls3d)
+            this.controls3d.enableOrientation();
+    }
+
     animate_(xrTimestamp, xrFrame) {
         if (!this.initialized_) {
             return;
+        }
+        // The mono drawing buffer is sized only once, in init(), from
+        // player.currentWidth()/currentHeight(). On mobile those can read 0 at
+        // that instant (vjs-fluid applies its aspect-ratio height after the
+        // loadedmetadata that drives init) and no window 'resize' event need
+        // follow, so the buffer stays 0-area and the CSS-stretched canvas
+        // paints solid black with no recovery. Re-apply the size whenever the
+        // player's reported size changes to a valid value. Skipped while an XR
+        // session presents, because WebXRManager owns the framebuffer then.
+        if (!this.xrActive) {
+            const w = this.player.currentWidth();
+            const h = this.player.currentHeight();
+            if (w && h && (w !== this.lastWidth_ || h !== this.lastHeight_)) {
+                this.handleResize_();
+            }
         }
         if (this.getVideoEl_().readyState === this.getVideoEl_().HAVE_ENOUGH_DATA) {
             if (this.videoTexture) {
@@ -136,8 +158,29 @@ class Xr extends Plugin {
         const width = this.player.currentWidth();
         const height = this.player.currentHeight();
 
+        // A collapsed layout (mobile can report 0 while vjs-fluid has not yet
+        // applied its aspect-ratio height) must not bake a 0-area buffer or a
+        // width/0 == Infinity aspect. Keep the last good size, retry next tick.
+        if (!width || !height) {
+            return;
+        }
+
+        // videojs-vr, which this plugin is based on, resizes the renderer on
+        // every resize; that call was lost in the port, so the drawing buffer
+        // stayed frozen at whatever size init() sampled. Restore it.
+        // updateStyle is false on purpose: init() styles the canvas
+        // width/height as 100% so it tracks the player, and setSize's default
+        // would overwrite that with fixed pixel values and break fluid layouts.
+        // Only the drawing buffer should change here.
+        if (this.renderer) {
+            this.renderer.setSize(width, height, false);
+        }
+
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
+
+        this.lastWidth_ = width;
+        this.lastHeight_ = height;
     }
 
     init() {
@@ -165,8 +208,17 @@ class Xr extends Plugin {
             this.scene.remove(this.movieScreen);
         }
 
-        // 360 equirectangular projection
-        this.movieGeometry = new THREE.SphereBufferGeometry(256, 32, 32);
+        // 360 equirectangular projection.
+        //
+        // Segment count matters more than it looks: UV interpolation across a
+        // quad is linear, but the equirect-to-sphere mapping is not, so every
+        // quad bends whatever straight line crosses it. At 32x32 a quad spans
+        // 11.25 degrees of azimuth and the bowing is plainly visible on any
+        // straight-edged content, worst near the poles where the azimuth
+        // segments converge into slivers. 256x128 puts a quad at about 1.4
+        // degrees, around 65k triangles, negligible for a GPU that is already
+        // playing back video.
+        this.movieGeometry = new THREE.SphereBufferGeometry(256, 256, 128);
         this.movieMaterial = new THREE.MeshBasicMaterial({ map: this.videoTexture, side: THREE.BackSide });
 
         this.movieScreen = new THREE.Mesh(this.movieGeometry, this.movieMaterial);
@@ -207,7 +259,8 @@ class Xr extends Plugin {
                 canvas: this.renderedCanvas,
                 // check if its a half sphere view projection
                 halfView: false,
-                orientation: false
+                orientation: this.options.orientation !== undefined ?
+                    !!this.options.orientation : videojs.browser.IS_ANDROID || videojs.browser.IS_IOS
             };
 
             this.controls3d = new OrbitOrientationControls(options);

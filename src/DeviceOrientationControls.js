@@ -19,7 +19,9 @@ var DeviceOrientationControls = function ( object ) {
 	this.object = object;
 	this.object.rotation.reorder( 'YXZ' );
 
-	this.enabled = true;
+	// disabled until connect() succeeds
+	this.enabled = false;
+	this.connected = false;
 
 	this.deviceOrientation = {};
 	this.screenOrientation = 0;
@@ -64,7 +66,20 @@ var DeviceOrientationControls = function ( object ) {
 
 	}();
 
+	var addListeners = function () {
+
+		window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
+		window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+
+		scope.enabled = true;
+		scope.connected = true;
+
+	};
+
+	// on iOS 13+ this must be called from within a user gesture handler
 	this.connect = function () {
+
+		if ( scope.connected ) return;
 
 		onScreenOrientationChangeEvent(); // run once on load
 
@@ -76,8 +91,7 @@ var DeviceOrientationControls = function ( object ) {
 
 				if ( response == 'granted' ) {
 
-					window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
-					window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+					addListeners();
 
 				}
 
@@ -89,12 +103,9 @@ var DeviceOrientationControls = function ( object ) {
 
 		} else {
 
-			window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
-			window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+			addListeners();
 
 		}
-
-		scope.enabled = true;
 
 	};
 
@@ -104,6 +115,7 @@ var DeviceOrientationControls = function ( object ) {
 		window.removeEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
 
 		scope.enabled = false;
+		scope.connected = false;
 
 	};
 
@@ -135,8 +147,6 @@ var DeviceOrientationControls = function ( object ) {
 		scope.disconnect();
 
 	};
-
-	this.connect();
 
 };
 
