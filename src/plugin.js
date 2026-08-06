@@ -168,8 +168,12 @@ class Xr extends Plugin {
         // videojs-vr, which this plugin is based on, resizes the renderer on
         // every resize; that call was lost in the port, so the drawing buffer
         // stayed frozen at whatever size init() sampled. Restore it.
+        // updateStyle is false on purpose: init() styles the canvas
+        // width/height as 100% so it tracks the player, and setSize's default
+        // would overwrite that with fixed pixel values and break fluid layouts.
+        // Only the drawing buffer should change here.
         if (this.renderer) {
-            this.renderer.setSize(width, height);
+            this.renderer.setSize(width, height, false);
         }
 
         this.camera.aspect = width / height;
